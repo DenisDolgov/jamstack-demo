@@ -6,7 +6,9 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
 } from 'firebase/auth';
-import type { User } from 'firebase/auth';
+import type { User as FirebaseUser } from 'firebase/auth';
+import type { User } from '../models/user';
+import { createUser } from '../lib/db';
 
 type AuthContextType = ReturnType<typeof useProvideAuth>;
 
@@ -19,20 +21,34 @@ export function useAuth() {
 export function useProvideAuth() {
   const [user, setUser] = useState<User | null>(null);
 
+  const handleUser = (rawUser: FirebaseUser | null) => {
+    if (rawUser) {
+      const user = formatUser(rawUser);
+      console.log('user', user);
+      void createUser(user);
+      setUser(user);
+
+      return user;
+    } else {
+      setUser(rawUser);
+      return rawUser;
+    }
+  };
+
   const signIn = (email: string, password: string) => {
     return signInWithEmailAndPassword(auth, email, password)
       .then((response) => {
-        setUser(response.user);
+        handleUser(response.user);
+
         return response.user;
       });
   };
 
   const signUpWithGoogle = () => {
-    console.log('AUTH', auth);
     return signInWithPopup(auth, new GoogleAuthProvider())
 
       .then((response) => {
-        setUser(response.user);
+        handleUser(response.user);
 
         return response.user;
       });
@@ -41,26 +57,19 @@ export function useProvideAuth() {
   const signUp = (email: string, password: string) => {
     return createUserWithEmailAndPassword(auth, email, password)
       .then((response) => {
-        setUser(response.user);
+        handleUser(response.user);
+
         return response.user;
       });
   };
 
   const signOut = () => {
     return auth.signOut()
-      .then(() => {
-        setUser(null);
-      });
+      .then(() => handleUser(null));
   };
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        setUser(null);
-      }
-    });
+    const unsubscribe = auth.onAuthStateChanged(handleUser);
 
     return () => unsubscribe();
   }, []);
@@ -73,3 +82,11 @@ export function useProvideAuth() {
     signUpWithGoogle,
   };
 }
+
+const formatUser = (user: FirebaseUser): User => ({
+  uid: user.uid,
+  email: user.email,
+  name: user.displayName,
+  providerData: user.providerData[0].providerId,
+  photoUrl: user.photoURL,
+})
