@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { auth } from '../lib/firebase';
+import { auth } from 'lib/firebase';
 import {
   signInWithPopup,
   signInWithEmailAndPassword,
@@ -7,8 +7,8 @@ import {
   GoogleAuthProvider,
 } from 'firebase/auth';
 import type { User as FirebaseUser } from 'firebase/auth';
-import type { User } from '../models/user';
-import { createUser } from '../lib/db';
+import type { User } from 'models/user';
+import { createUser } from 'lib/db';
 
 type AuthContextType = ReturnType<typeof useProvideAuth>;
 
@@ -88,5 +88,5 @@ const formatUser = (user: FirebaseUser): User => ({
   email: user.email,
   name: user.displayName,
   providerData: user.providerData[0].providerId,
-  photoUrl: user.photoURL,
+  photoURL: user.photoURL,
 })

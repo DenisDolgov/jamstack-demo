@@ -1,4 +1,4 @@
-import { AuthContext, useProvideAuth } from '../hooks/auth';
+import { AuthContext, useProvideAuth } from 'hooks/auth';
 import { PropsWithChildren } from 'react';
 
 const AuthProvider = ({ children }: PropsWithChildren) => {
