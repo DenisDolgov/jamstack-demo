@@ -1,27 +1,34 @@
-import Head from 'next/head'
-import { Button, Heading, Text, Code } from '@chakra-ui/react';
+import Head from 'next/head';
+import { Button, Heading, Text, Code, Flex } from '@chakra-ui/react';
 import { useAuth } from 'hooks/auth';
+import EmptyState from '../components/EmptyState';
 
-export default function Home() {
+const Home = () => {
   const { user, signUpWithGoogle, signOut } = useAuth();
 
+  if (!user) {
+
+  }
+
   return (
-    <>
+    <Flex as='main' direction='column'>
       <Head>
         <title>Fast Feedback</title>
         <link rel='icon' href='/favicon.ico' />
       </Head>
-      <main>
-        <Heading as="h1">Fast Feedback</Heading>
-        <Text>
-          Current user: <Code>{user ? user.email : 'unauthenticated'}</Code>
-        </Text>
-        {user ? (
-          <Button onClick={() => signOut()}>signOut</Button>
-        ) : (
-          <Button onClick={() => signUpWithGoogle()}>signup</Button>
-        )}
-      </main>
-    </>
-  )
-}
+      {user && (
+        <EmptyState />
+      )}
+      <Text>
+        Current user: <Code>{user ? user.email : 'unauthenticated'}</Code>
+      </Text>
+      {user ? (
+        <Button onClick={() => signOut()}>signOut</Button>
+      ) : (
+        <Button onClick={() => signUpWithGoogle()}>signup</Button>
+      )}
+    </Flex>
+  );
+};
+
+export default Home;
